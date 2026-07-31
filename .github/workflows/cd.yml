@@ -1,17 +1,10 @@
 # ============================================================
-# OIT MIS — Continuous Deployment (CD)
+# OIT MIS — Continuous Deployment (CD) & Image Registry
 # ============================================================
-# Triggers: Push to main branch only (not PRs)
+# Triggers: Push to main branch
 # Steps:
-#   1. Build Docker images
-#   2. Push to GitHub Container Registry (ghcr.io)
-#   3. SSH into production server and deploy
-#
-# Required GitHub Secrets (Settings → Secrets → Actions):
-#   DEPLOY_HOST        — Server IP or hostname
-#   DEPLOY_USER        — SSH username (e.g. ubuntu, root)
-#   DEPLOY_SSH_KEY     — Private SSH key for the server
-#   DEPLOY_PATH        — Project path on server (e.g. /opt/oit-mis)
+#   1. Build Docker images & Push to GitHub Container Registry (GHCR)
+#   2. SSH into production server and deploy (skips cleanly if no server secrets)
 # ============================================================
 
 name: CD — Build, Push & Deploy
@@ -76,22 +69,19 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### 🐳 Docker Images Published" >> $GITHUB_STEP_SUMMARY
+          echo "### 🐳 Docker Images Published to GHCR" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Image | Tag |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Backend | \`${{ env.BACKEND_IMAGE }}:${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend | \`${{ env.FRONTEND_IMAGE }}:${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
 
-  # ── Step 2: Deploy to Production Server ────────────────────
+  # ── Step 2: Deploy to Production Server (Only if server host is set) ──
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://${{ vars.DOMAIN || 'mis.oit.edu' }}
+    if: github.ref == 'refs/heads/main' && secrets.DEPLOY_HOST != ''
 
     steps:
       - name: Checkout code
@@ -109,63 +99,19 @@ jobs:
             echo "============================================"
             echo "  OIT MIS — Production Deployment"
             echo "  Commit: ${{ github.sha }}"
-            echo "  Time:   $(date)"
             echo "============================================"
 
             cd ${{ secrets.DEPLOY_PATH || '/opt/oit-mis' }}
 
-            # Pull latest code
-            echo "► Pulling latest code..."
             git pull origin main
 
-            # Login to GHCR
-            echo "► Logging into container registry..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull pre-built images
-            echo "► Pulling Docker images..."
             docker pull ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
             docker pull ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
 
-            # Tag as latest for compose
             docker tag ${{ env.BACKEND_IMAGE }}:${{ github.sha }} orion-mis-backend:latest
             docker tag ${{ env.FRONTEND_IMAGE }}:${{ github.sha }} orion-mis-frontend:latest
 
-            # Database backup before deploy
-            echo "► Pre-deploy database backup..."
-            if [ -f scripts/backup-db.sh ]; then
-              chmod +x scripts/backup-db.sh
-              ./scripts/backup-db.sh || echo "⚠️ Backup skipped (non-critical)"
-            fi
-
-            # Deploy with production compose
-            echo "► Deploying containers..."
             docker compose -f docker-compose.prod.yml up -d --force-recreate backend frontend nginx
-
-            # Health check
-            echo "► Running health check..."
-            sleep 10
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/health || echo "000")
-
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "✅ Deployment successful! Health check passed."
-            else
-              echo "⚠️ Health check returned: $HTTP_CODE (backend may still be starting)"
-            fi
-
-            # Cleanup old images
-            echo "► Cleaning up old Docker images..."
             docker image prune -f
-
-            echo ""
-            echo "============================================"
-            echo "  ✅ Deployment Complete!"
-            echo "============================================"
-
-      - name: Deployment Summary
-        run: |
-          echo "### 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch:** \`main\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployed by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

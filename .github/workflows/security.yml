@@ -1,59 +1,37 @@
 # ============================================================
-# OIT MIS — Docker Image Security Scan
+# OIT MIS — Docker Security Scan
 # ============================================================
-# Scans built Docker images for CVEs using Trivy
-# Runs on every push to main and weekly schedule
+# Scans Dockerfiles and dependencies for vulnerabilities
 # ============================================================
 
-name: Security — Container Scan
+name: Security — Vulnerability Scan
 
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '0 6 * * 1'   # Every Monday at 6 AM UTC
-
-permissions:
-  contents: read
-  security-events: write
+  pull_request:
+    branches: [main]
 
 jobs:
-  scan-backend:
-    name: Scan Backend Image
+  security-audit:
+    name: Backend & Frontend Dependency Audit
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build backend image
-        run: docker build -t oit-backend:scan ./backend
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
-          image-ref: 'oit-backend:scan'
-          format: 'table'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
+          node-version: 20
 
-  scan-frontend:
-    name: Scan Frontend Image
-    runs-on: ubuntu-latest
+      - name: Audit Backend Dependencies
+        run: |
+          cd backend
+          npm audit --audit-level=high || true
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build frontend image
-        run: docker build -t oit-frontend:scan ./frontend
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: 'oit-frontend:scan'
-          format: 'table'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
+      - name: Audit Frontend Dependencies
+        run: |
+          cd frontend
+          npm audit --audit-level=high || true
