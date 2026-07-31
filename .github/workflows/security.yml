@@ -13,6 +13,10 @@ on:
   schedule:
     - cron: '0 6 * * 1'   # Every Monday at 6 AM UTC
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   scan-backend:
     name: Scan Backend Image
@@ -33,20 +37,6 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
-
-      - name: Upload Trivy report
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: 'oit-backend:scan'
-          format: 'sarif'
-          output: 'backend-trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'backend-trivy-results.sarif'
 
   scan-frontend:
     name: Scan Frontend Image
