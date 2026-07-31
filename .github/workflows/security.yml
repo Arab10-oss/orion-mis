@@ -1,0 +1,69 @@
+# ============================================================
+# OIT MIS — Docker Image Security Scan
+# ============================================================
+# Scans built Docker images for CVEs using Trivy
+# Runs on every push to main and weekly schedule
+# ============================================================
+
+name: Security — Container Scan
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'   # Every Monday at 6 AM UTC
+
+jobs:
+  scan-backend:
+    name: Scan Backend Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t oit-backend:scan ./backend
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'oit-backend:scan'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy report
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'oit-backend:scan'
+          format: 'sarif'
+          output: 'backend-trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'backend-trivy-results.sarif'
+
+  scan-frontend:
+    name: Scan Frontend Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build frontend image
+        run: docker build -t oit-frontend:scan ./frontend
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'oit-frontend:scan'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
