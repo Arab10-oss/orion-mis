@@ -24,8 +24,8 @@ const rawLastNames = [
 
 const seedDatabase = async (force = false) => {
   try {
-    const userCount = await User.count();
-    if (userCount > 10 && !force) {
+    const arabAdmin = await User.findOne({ where: { email: 'arabdas98@gmail.com' } });
+    if (arabAdmin && !force) {
       console.log('📦 Database already populated. Skipping...');
       return;
     }
