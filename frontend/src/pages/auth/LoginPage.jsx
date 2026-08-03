@@ -71,9 +71,6 @@ const OrionNetwork = () => (
       <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
         <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#1b365d" strokeWidth="0.4" strokeOpacity="0.15"/>
       </pattern>
-
-      {/* Clip for hub */}
-      <clipPath id="hubClip"><circle cx="240" cy="240" r="40"/></clipPath>
     </defs>
 
     {/* Blueprint grid background */}
@@ -297,16 +294,16 @@ const LoginPage = () => {
 
   return (
     <div
-      className="min-h-screen flex font-sans overflow-hidden"
+      className="min-h-screen flex flex-col md:flex-row font-sans overflow-y-auto lg:overflow-hidden"
       style={{ background: '#f8fafc' }}
       onMouseMove={onMouseMove}
     >
       {/* ═══════════════════════════════════════
-          LEFT — Dark Navy Enterprise Panel
+          LEFT — Dark Navy Enterprise Panel (Tablet + Desktop)
       ═══════════════════════════════════════ */}
       <motion.div
         ref={panelRef}
-        className="hidden lg:flex lg:w-[52%] xl:w-[55%] flex-col relative overflow-hidden"
+        className="hidden md:flex md:w-1/2 lg:w-[52%] xl:w-[55%] flex-col relative overflow-hidden flex-shrink-0"
         style={{
           background: 'linear-gradient(160deg, #0b192c 0%, #0f2942 40%, #0a1f33 70%, #0b192c 100%)',
         }}
@@ -323,7 +320,7 @@ const LoginPage = () => {
         </div>
 
         {/* Top-left brand */}
-        <div className="relative z-10 p-10 flex items-center gap-3.5">
+        <div className="relative z-10 p-6 lg:p-10 flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
             style={{
               background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
@@ -342,31 +339,31 @@ const LoginPage = () => {
         </div>
 
         {/* Network illustration — parallax */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-10">
-          <motion.div style={{ x: sx, y: sy }} className="w-full max-w-[420px] aspect-square">
+        <div className="relative z-10 flex-1 flex items-center justify-center px-6 lg:px-10">
+          <motion.div style={{ x: sx, y: sy }} className="w-full max-w-[280px] md:max-w-[340px] lg:max-w-[420px] aspect-square">
             <OrionNetwork/>
           </motion.div>
         </div>
 
         {/* Caption */}
         <motion.div
-          className="relative z-10 px-12 pb-10"
+          className="relative z-10 px-6 lg:px-12 pb-6 lg:pb-10"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
         >
-          <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
+          <h2 className="text-lg lg:text-xl font-bold text-white mb-2 tracking-tight">
             Connected Campus Intelligence
           </h2>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(141,166,192,0.85)' }}>
+          <p className="text-xs lg:text-sm leading-relaxed" style={{ color: 'rgba(141,166,192,0.85)' }}>
             A unified platform for students, faculty, and administration — built on cloud-native infrastructure with AI-powered analytics.
           </p>
 
           {/* Feature tags */}
-          <div className="flex flex-wrap gap-2 mt-5">
+          <div className="flex flex-wrap gap-1.5 lg:gap-2 mt-4 lg:mt-5">
             {['Smart Analytics', 'Cloud-Native', 'AI-Powered', 'Secure ERP'].map(tag => (
               <span key={tag}
-                className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full"
+                className="px-2.5 lg:px-3 py-1 text-[9px] lg:text-[10px] font-bold uppercase tracking-wider rounded-full"
                 style={{
                   color: '#fbbf24',
                   background: 'rgba(245,163,0,0.08)',
@@ -379,16 +376,16 @@ const LoginPage = () => {
         </motion.div>
 
         {/* Bottom stats bar */}
-        <div className="relative z-10 mx-10 mb-10 grid grid-cols-3 gap-px rounded-2xl overflow-hidden border border-campus-navy-700/40">
+        <div className="relative z-10 mx-6 lg:mx-10 mb-6 lg:mb-10 grid grid-cols-3 gap-px rounded-2xl overflow-hidden border border-campus-navy-700/40">
           {[
             { label: 'Students', value: '3,200+' },
             { label: 'Faculty', value: '120+' },
             { label: 'Courses', value: '240+' },
           ].map(({ label, value }) => (
-            <div key={label} className="py-3 text-center"
+            <div key={label} className="py-2.5 lg:py-3 text-center"
               style={{ background: 'rgba(255,255,255,0.03)' }}>
-              <p className="text-base font-bold text-white">{value}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-wider mt-0.5"
+              <p className="text-sm lg:text-base font-bold text-white">{value}</p>
+              <p className="text-[9px] lg:text-[10px] font-semibold uppercase tracking-wider mt-0.5"
                 style={{ color: 'rgba(141,166,192,0.7)' }}>{label}</p>
             </div>
           ))}
@@ -400,9 +397,9 @@ const LoginPage = () => {
       </motion.div>
 
       {/* ═══════════════════════════════════════
-          RIGHT — Login Panel
+          RIGHT — Login Panel (Mobile + Tablet + Desktop)
       ═══════════════════════════════════════ */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-[#f8fafc] relative">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 md:px-8 lg:px-12 relative bg-[#f8fafc]">
         {/* Subtle bg texture */}
         <div className="absolute inset-0 pointer-events-none opacity-30"
           style={{
@@ -410,37 +407,42 @@ const LoginPage = () => {
             backgroundSize: '28px 28px'
           }}/>
 
+        {/* Mobile Header Banner (<md:) */}
+        <div className="block md:hidden w-full max-w-[400px] mb-6 text-center">
+          <div className="inline-flex items-center justify-center p-2 rounded-2xl mb-3"
+            style={{ background: 'linear-gradient(135deg, #0b192c, #0f2942)', boxShadow: '0 4px 16px rgba(11,25,44,0.15)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-campus-gold-400 to-campus-gold-600">
+              <AcademicCapIcon className="w-6 h-6 text-campus-navy-900"/>
+            </div>
+          </div>
+          <h2 className="text-base font-bold text-campus-navy-900 tracking-tight">Orion Institute of Technology</h2>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-campus-gold-600 mt-0.5">University Management System</p>
+
+          {/* Compact Network Illustration preview for Mobile */}
+          <div className="w-44 h-44 mx-auto my-2">
+            <OrionNetwork />
+          </div>
+        </div>
+
         <motion.div
           className="relative w-full max-w-[400px]"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         >
-          {/* Mobile brand mark */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #1b365d, #0f2942)', boxShadow: '0 4px 16px rgba(15,25,44,0.2)' }}>
-              <AcademicCapIcon className="w-5 h-5 text-campus-gold-400"/>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-campus-navy-900 tracking-tight">Orion Institute of Technology</p>
-              <p className="text-[10px] text-slate-500 tracking-wide">University Management System</p>
-            </div>
-          </div>
-
           {/* Heading */}
-          <div className="mb-7">
-            <h1 className="text-[28px] font-bold text-campus-navy-900 tracking-tight leading-tight">
+          <div className="mb-6 lg:mb-7">
+            <h1 className="text-2xl sm:text-[28px] font-bold text-campus-navy-900 tracking-tight leading-tight">
               Welcome back
             </h1>
-            <p className="text-sm text-slate-500 mt-1.5 leading-snug">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-snug">
               Sign in to Orion Institute of Technology Portal
             </p>
           </div>
 
           {/* Card */}
           <div
-            className="bg-white rounded-[28px] border border-slate-200/80 p-8"
+            className="bg-white rounded-[28px] border border-slate-200/80 p-6 sm:p-8"
             style={{ boxShadow: '0 4px 6px -1px rgba(15,23,42,0.04), 0 20px 40px -8px rgba(15,23,42,0.08), 0 0 0 1px rgba(226,232,240,0.6)' }}
           >
             {/* Card header */}
