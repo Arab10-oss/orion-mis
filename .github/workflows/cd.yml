@@ -78,5 +78,13 @@ jobs:
             sudo chown -R $(whoami) . 2>/dev/null || true
             git config --global --add safe.directory '*'
             git pull origin main
+            mkdir -p certbot/conf/live certbot/www
+            if [ ! -f certbot/conf/live/cert.pem ]; then
+              openssl req -x509 -nodes -newkey rsa:2048 \
+                -keyout certbot/conf/live/key.pem \
+                -out certbot/conf/live/cert.pem \
+                -days 365 \
+                -subj "/CN=${{ secrets.DEPLOY_HOST }}.nip.io" 2>/dev/null || true
+            fi
             docker compose -f docker-compose.prod.yml up -d --build
             docker image prune -f
