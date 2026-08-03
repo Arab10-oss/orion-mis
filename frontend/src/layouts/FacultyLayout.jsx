@@ -26,8 +26,8 @@ const FacultyLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-900 dark:bg-slate-950">
-      <Sidebar items={navItems} title="STATE UNIVERSITY" subtitle="Faculty Portal" collapsed={collapsed} />
+    <div className="min-h-screen bg-campus-parchment-100">
+      <Sidebar items={navItems} title="OIT PORTAL" subtitle="Faculty Portal" collapsed={collapsed} />
       <div className={`transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <Navbar onMenuToggle={() => setCollapsed(!collapsed)} />
         <main className="p-6">
