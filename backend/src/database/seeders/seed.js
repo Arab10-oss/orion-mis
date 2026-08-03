@@ -68,15 +68,25 @@ const seedDatabase = async (force = false) => {
     const facultyPass = await bcrypt.hash('Faculty@123', salt);
     const studentPass = await bcrypt.hash('Student@123', salt);
 
-    // 2. ADMIN USER
-    const adminUser = await User.create({
-      username: 'Dr. Rajesh Kumar (Admin)',
-      email: 'admin@oit.edu',
-      password: adminPass,
-      role: 'Admin',
-      status: 'active'
-    });
-    await Admin.create({ user_id: adminUser.id, designation: 'System Administrator' });
+    // 2. SYSTEM ADMINISTRATORS (5 Admins)
+    const adminList = [
+      { name: 'Arab Das', email: 'arabdas98@gmail.com', desig: 'Chief System Administrator' },
+      { name: 'Dhruv Mohapatro', email: 'dhruvmohapatro3@gmail.com', desig: 'Senior MIS Administrator' },
+      { name: 'Biswajit Barik', email: 'biswajitbarik@gmail.com', desig: 'Database Administrator' },
+      { name: 'Jai Krishna', email: 'gourimanirout@gmail.com', desig: 'Infrastructure Administrator' },
+      { name: 'Surya Kanta Lenka', email: 'suryakantalenka017@gmail.com', desig: 'Security Administrator' },
+    ];
+
+    for (let a of adminList) {
+      const u = await User.create({
+        username: a.name,
+        email: a.email,
+        password: adminPass,
+        role: 'Admin',
+        status: 'active'
+      });
+      await Admin.create({ user_id: u.id, designation: a.desig });
+    }
 
     // 3. 10 FACULTY MEMBERS
     const facultyList = [

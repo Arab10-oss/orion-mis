@@ -553,7 +553,7 @@ const LoginPage = () => {
               </p>
               <div className="space-y-1.5 bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
                 {[
-                  { role: 'Admin',   email: 'admin@oit.edu',           pass: 'Admin@123',   bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
+                  { role: 'Admin',   email: 'arabdas98@gmail.com',     pass: 'Admin@123',   bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
                   { role: 'Faculty', email: 'anita.sharmaFAC@oit.edu', pass: 'Faculty@123', bg: '#f0fdf4', fg: '#15803d', bd: '#bbf7d0' },
                   { role: 'Student', email: 'zahir.arjun100@oit.edu',  pass: 'Student@123', bg: '#eff6ff', fg: '#1d4ed8', bd: '#bfdbfe' },
                 ].map(({ role, email, pass, bg, fg, bd }) => (
