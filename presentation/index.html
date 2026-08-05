@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORION MIS — 3D Master Keynote Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;700;900&family=Poppins:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0F19;
+      --panel: #15213A;
+      --panel-border: rgba(93, 228, 255, 0.2);
+      --glass: rgba(21, 33, 58, 0.65);
+      --electric-blue: #3D8BFF;
+      --cyan: #5DE4FF;
+      --purple: #8D5BFF;
+      --violet: #C46CFF;
+      --pink: #FF66C4;
+      --white: #F5F8FF;
+      --muted: #A5B4CF;
+      --line: #315079;
+      --green: #59E6B7;
+      --red: #FF737D;
+      --yellow: #FFD36A;
+      --glow-blue: rgba(61, 139, 255, 0.35);
+      --glow-purple: rgba(141, 91, 255, 0.35);
+      --glow-cyan: rgba(93, 228, 255, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--white);
+      user-select: none;
+    }
+
+    /* Background Canvas */
+    #bg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Ambient Glow Blobs */
+    .glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatBlob 12s infinite alternate ease-in-out;
+    }
+
+    .glow-blob-1 {
+      top: -10%;
+      right: -5%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--purple), transparent 70%);
+    }
+
+    .glow-blob-2 {
+      bottom: -15%;
+      left: -10%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, var(--electric-blue), transparent 70%);
+      animation-delay: -5s;
+    }
+
+    .glow-blob-3 {
+      top: 40%;
+      left: 40%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--cyan), transparent 70%);
+      opacity: 0.15;
+      animation-delay: -8s;
+    }
+
+    @keyframes floatBlob {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    /* Presentation Viewport */
+    .deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+      z-index: 2;
+    }
+
+    /* Slide Frame (16:9 Aspect Ratio) */
+    .slide-viewport {
+      position: relative;
+      width: 90vw;
+      max-width: 1440px;
+      height: 50.625vw; /* 16:9 ratio */
+      max-height: 810px;
+      background: rgba(11, 15, 25, 0.85);
+      border-radius: 20px;
+      border: 1px solid rgba(93, 228, 255, 0.25);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8),
+                  0 0 40px rgba(93, 228, 255, 0.15),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Slide Stack */
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 3rem 4rem;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateZ(-200px) rotateY(15deg) scale(0.9);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.7s;
+      z-index: 5;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateZ(0) rotateY(0deg) scale(1);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateZ(-200px) rotateY(-15deg) scale(0.9);
+    }
+
+    /* Slide Header */
+    .slide-header {
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .slide-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FFFFFF 0%, #B0C4DE 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    /* Content Area */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--glass);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--cyan);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px var(--glow-cyan);
+    }
+
+    .glass-card.highlight {
+      border-color: var(--yellow);
+      background: linear-gradient(135deg, rgba(255, 211, 106, 0.15) 0%, rgba(21, 33, 58, 0.8) 100%);
+      box-shadow: 0 0 30px rgba(255, 211, 106, 0.2);
+    }
+
+    /* Badge Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .badge-blue { background: rgba(61, 139, 255, 0.2); color: var(--electric-blue); border-color: var(--electric-blue); }
+    .badge-purple { background: rgba(141, 91, 255, 0.2); color: var(--purple); border-color: var(--purple); }
+    .badge-cyan { background: rgba(93, 228, 255, 0.2); color: var(--cyan); border-color: var(--cyan); }
+    .badge-green { background: rgba(89, 230, 183, 0.2); color: var(--green); border-color: var(--green); }
+    .badge-yellow { background: rgba(255, 211, 106, 0.2); color: var(--yellow); border-color: var(--yellow); }
+
+    /* Grid Layouts */
+    .grid-3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 1.2rem;
+      width: 100%;
+      height: 100%;
+    }
+
+    .grid-4x2 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      width: 100%;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+    }
+
+    /* Specific Slide Customizations */
+    /* Slide 1 Title */
+    .hero-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-left {
+      flex: 1.2;
+    }
+
+    .hero-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #FFFFFF 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero-right {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 3D Isometric Campus Visual */
+    .iso-stage {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      transform-style: preserve-3d;
+      transform: rotateX(60deg) rotateZ(-45deg);
+      animation: isoFloat 8s infinite alternate ease-in-out;
+    }
+
+    @keyframes isoFloat {
+      0% { transform: rotateX(60deg) rotateZ(-45deg) translateZ(0); }
+      100% { transform: rotateX(60deg) rotateZ(-45deg) translateZ(20px); }
+    }
+
+    .iso-building {
+      position: absolute;
+      background: linear-gradient(135deg, var(--electric-blue), var(--purple));
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 30px var(--glow-cyan);
+      transform-style: preserve-3d;
+    }
+
+    .b1 { width: 90px; height: 90px; top: 20px; left: 20px; transform: translateZ(60px); }
+    .b2 { width: 110px; height: 110px; top: 140px; left: 30px; transform: translateZ(90px); background: linear-gradient(135deg, var(--purple), var(--violet)); }
+    .b3 { width: 80px; height: 80px; top: 80px; left: 180px; transform: translateZ(50px); background: linear-gradient(135deg, var(--cyan), var(--electric-blue)); }
+
+    /* Flow Diagrams */
+    .workflow-track {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+      margin: auto 0;
+    }
+
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.2rem;
+      background: var(--panel);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 110px;
+      box-shadow: 0 0 15px rgba(93, 228, 255, 0.2);
+      position: relative;
+      z-index: 2;
+    }
+
+    .flow-arrow {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      position: relative;
+    }
+
+    .flow-arrow::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -4px;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid var(--purple);
+    }
+
+    .glowing-particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--cyan);
+      animation: moveParticle 3s infinite linear;
+    }
+
+    @keyframes moveParticle {
+      0% { left: 0%; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { left: 100%; opacity: 0; }
+    }
+
+    /* ER Model Diagram */
+    .er-diagram {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+      align-items: center;
+    }
+
+    .er-card {
+      background: var(--panel);
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    }
+
+    .er-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .er-attr {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(93, 228, 255, 0.3);
+      padding: 0.6rem 1.4rem;
+      border-radius: 40px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(93, 228, 255, 0.15);
+      z-index: 100;
+    }
+
+    .btn-ctrl {
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .btn-ctrl:hover {
+      background: rgba(93, 228, 255, 0.15);
+      color: var(--cyan);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--electric-blue), var(--purple));
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--glow-purple);
+      transition: all 0.3s ease;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px var(--glow-cyan);
+    }
+
+    .slide-indicator {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--cyan);
+      font-weight: 600;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* Speaker Notes Modal */
+    .notes-drawer {
+      position: fixed;
+      bottom: 6rem;
+      right: 3rem;
+      width: 380px;
+      max-height: 250px;
+      background: rgba(11, 15, 25, 0.95);
+      border: 1px solid var(--purple);
+      border-radius: 16px;
+      padding: 1.2rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+      z-index: 90;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .notes-drawer.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .notes-header {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notes-body {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Footer Branding */
+    .slide-footer {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 4rem;
+      right: 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 0.8rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Background Canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Glow Blobs -->
+  <div class="glow-blob glow-blob-1"></div>
+  <div class="glow-blob glow-blob-2"></div>
+  <div class="glow-blob glow-blob-3"></div>
+
+  <!-- Deck Container -->
+  <div class="deck-container">
+    <div class="slide-viewport">
+
+      <!-- SLIDE 1: Title -->
+      <div class="slide active" id="slide-1" data-notes="Open with the ORION MIS vision: one cloud-native platform that connects university operations end-to-end.">
+        <div class="hero-container">
+          <div class="hero-left">
+            <div class="eyebrow">Final Year Project Presentation • 2026</div>
+            <h1 class="hero-title">ORION MIS</h1>
+            <div class="hero-subtitle">University Management Information System</div>
+            <p style="color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem;">Modern Cloud-Native Architecture designed for enterprise-grade academic operations.</p>
+            <div class="hero-badges">
+              <span class="badge badge-blue">Agile</span>
+              <span class="badge badge-purple">DevOps</span>
+              <span class="badge badge-cyan">Docker</span>
+              <span class="badge badge-yellow">AWS</span>
+            </div>
+          </div>
+          <div class="hero-right">
+            <div class="iso-stage">
+              <div class="iso-building b1"></div>
+              <div class="iso-building b2"></div>
+              <div class="iso-building b3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION  /  UNIVERSITY MANAGEMENT INFORMATION SYSTEM</span>
+          <span>SLIDE 01 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: Project Overview -->
+      <div class="slide" id="slide-2" data-notes="Explain that every module shares a common identity, data model and reporting layer.">
+        <div class="slide-header">
+          <div class="eyebrow">01 / Project Overview</div>
+          <h2 class="slide-title">One Intelligent Operating System for Campus Life</h2>
+          <div class="slide-subtitle">A unified, role-aware platform making academic operations visible, actionable, and secure.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-3x3">
+            <div class="glass-card">
+              <div class="badge badge-cyan" style="margin-bottom:0.5rem">Student</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Student Management</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Profiles, academic lifecycle, and enrollment histories.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-purple" style="margin-bottom:0.5rem">Faculty</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Faculty Management</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Workloads, department allocations, and teaching tasks.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-green" style="margin-bottom:0.5rem">Real-Time</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Attendance</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Live digital signals, auto-alerts, and tracking.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-blue" style="margin-bottom:0.5rem">Catalog</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Courses</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Course catalog, credits, prerequisites, and offerings.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-cyan" style="margin-bottom:0.5rem">Governance</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Departments</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Structured organizational hierarchy and management.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-yellow" style="margin-bottom:0.5rem">Assessments</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Examination</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Schedules, exam halls, and invigilation tracking.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-purple" style="margin-bottom:0.5rem">Analytics</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Results</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Grade calculations, transcripts, and GPA insights.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-green" style="margin-bottom:0.5rem">Export</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Reports</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Automated PDF and Excel export intelligence.</p>
+            </div>
+            <div class="glass-card">
+              <div class="badge badge-blue" style="margin-bottom:0.5rem">Security</div>
+              <h3 style="font-size:1.1rem; margin-bottom:0.3rem">Role-Based Access</h3>
+              <p style="font-size:0.8rem; color:var(--muted)">Least-privilege security controls and granular permissions.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  PROJECT OVERVIEW</span>
+          <span>SLIDE 02 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: Problem Statement -->
+      <div class="slide" id="slide-3" data-notes="Frame the project as a transformation: manual systems lose time and control; ORION makes operations digital, auditable and responsive.">
+        <div class="slide-header">
+          <div class="eyebrow">02 / Problem Statement</div>
+          <h2 class="slide-title">From Fragmented Effort to a Connected Campus</h2>
+          <div class="slide-subtitle">Traditional legacy university operations introduce operational friction, delay, and security vulnerabilities.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-2col">
+            <div class="glass-card" style="border-color: var(--red);">
+              <h3 style="color:var(--red); font-size:1.3rem; margin-bottom:1rem;">TRADITIONAL SYSTEM</h3>
+              <ul style="list-style:none; line-height:2.2; color:var(--muted); font-size:0.95rem;">
+                <li>❌ Paper-based operations & physical record keeping</li>
+                <li>❌ Manual paper attendance registers</li>
+                <li>❌ Slow, error-prone manual report generation</li>
+                <li>❌ Isolated, poor inter-department communication</li>
+                <li>❌ Lack of centralized data management</li>
+                <li>❌ High security and compliance risks</li>
+              </ul>
+            </div>
+            <div class="glass-card" style="border-color: var(--cyan); background: linear-gradient(135deg, rgba(93, 228, 255, 0.1) 0%, rgba(21,33,58,0.7) 100%);">
+              <h3 style="color:var(--cyan); font-size:1.3rem; margin-bottom:1rem;">ORION MIS SOLUTION</h3>
+              <ul style="list-style:none; line-height:2.2; color:var(--white); font-size:0.95rem;">
+                <li>⚡ Automated digital cloud workflows</li>
+                <li>⚡ Real-time biometric & digital attendance</li>
+                <li>⚡ Instant PDF & Excel report generation</li>
+                <li>⚡ Unified real-time communication channels</li>
+                <li>⚡ Centralized command & data intelligence</li>
+                <li>⚡ Enterprise security with JWT & RBAC</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  PROBLEM STATEMENT</span>
+          <span>SLIDE 03 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Project Vision -->
+      <div class="slide" id="slide-4" data-notes="Connect the vision to the roadmap: deliver usable increments through Agile sprints and continuously improve based on feedback.">
+        <div class="slide-header">
+          <div class="eyebrow">03 / Project Vision</div>
+          <h2 class="slide-title">Build the University Platform That Evolves with Ambition</h2>
+          <div class="slide-subtitle">Secure • Scalable • Insightful • Continuously Delivered</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center; gap: 2rem;">
+          <div style="display: flex; gap: 1.2rem; width: 100%;">
+            <div class="glass-card" style="flex: 1; text-align: center;">
+              <div class="badge badge-cyan" style="margin-bottom:0.8rem">AUTOMATE</div>
+              <p style="font-size:0.85rem; color:var(--muted)">Academic & administrative workflows end-to-end.</p>
+            </div>
+            <div class="glass-card" style="flex: 1; text-align: center;">
+              <div class="badge badge-purple" style="margin-bottom:0.8rem">PROTECT</div>
+              <p style="font-size:0.85rem; color:var(--muted)">Role-based access & strict audit trails.</p>
+            </div>
+            <div class="glass-card" style="flex: 1; text-align: center;">
+              <div class="badge badge-blue" style="margin-bottom:0.8rem">SCALE</div>
+              <p style="font-size:0.85rem; color:var(--muted)">Cloud-native containerized architecture.</p>
+            </div>
+            <div class="glass-card" style="flex: 1; text-align: center;">
+              <div class="badge badge-green" style="margin-bottom:0.8rem">ILLUMINATE</div>
+              <p style="font-size:0.85rem; color:var(--muted)">Real-time analytics for executive decisions.</p>
+            </div>
+            <div class="glass-card" style="flex: 1; text-align: center;">
+              <div class="badge badge-yellow" style="margin-bottom:0.8rem">DELIVER</div>
+              <p style="font-size:0.85rem; color:var(--muted)">Continuous CI/CD automated deployment.</p>
+            </div>
+          </div>
+          <div class="glass-card" style="text-align: center; border-color: var(--purple);">
+            <p style="font-size:1.05rem; font-style:italic; color:var(--cyan)">"Roadmap Principle: Ship valuable increments, measure impact, and improve continuously."</p>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  PROJECT VISION</span>
+          <span>SLIDE 04 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Technology Stack -->
+      <div class="slide" id="slide-5" data-notes="Walk top-down: React drives the experience; Express encapsulates APIs; MySQL provides reliable data; Docker and Terraform make cloud deployment repeatable.">
+        <div class="slide-header">
+          <div class="eyebrow">04 / Technology Stack</div>
+          <h2 class="slide-title">A Modern 3D Stack Layered for Velocity & Resilience</h2>
+          <div class="slide-subtitle">Purpose-built components from high-velocity UI to cloud infrastructure.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; gap: 0.8rem; justify-content: center;">
+          <div class="glass-card" style="border-left: 5px solid var(--cyan); display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-cyan" style="font-size:0.9rem">FRONTEND</span>
+            <span style="font-weight:600">React 19 • Vite • Tailwind CSS • React Router • Framer Motion • Axios • React Hook Form • Joi • Chart.js</span>
+          </div>
+          <div class="glass-card" style="border-left: 5px solid var(--purple); display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-purple" style="font-size:0.9rem">BACKEND</span>
+            <span style="font-weight:600">Node.js • Express.js • JWT Authentication • Swagger API Docs • PDFKit • ExcelJS</span>
+          </div>
+          <div class="glass-card" style="border-left: 5px solid var(--electric-blue); display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-blue" style="font-size:0.9rem">DATABASE</span>
+            <span style="font-weight:600">MySQL 8 Relational DB • Sequelize ORM</span>
+          </div>
+          <div class="glass-card" style="border-left: 5px solid var(--green); display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-green" style="font-size:0.9rem">CLOUD</span>
+            <span style="font-weight:600">Docker • Docker Compose • Terraform IaC • AWS EC2 • Render</span>
+          </div>
+          <div class="glass-card" style="border-left: 5px solid var(--yellow); display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-yellow" style="font-size:0.9rem">DEVOPS & SECURITY</span>
+            <span style="font-weight:600">GitHub Actions CI/CD • Nginx Reverse Proxy • Helmet • Trivy Scanner • Rate Limiting</span>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  TECHNOLOGY STACK</span>
+          <span>SLIDE 05 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: Workflow -->
+      <div class="slide" id="slide-6" data-notes="Trace a typical role-based request: identity, JWT, UI, Axios, API, business logic, database, response and dashboard.">
+        <div class="slide-header">
+          <div class="eyebrow">05 / System Workflow</div>
+          <h2 class="slide-title">Complete System Workflow & Live Request Flow</h2>
+          <div class="slide-subtitle">A request travels through a controlled path—then returns as a live dashboard update.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center;">
+          <div class="workflow-track">
+            <div class="flow-node">User Login</div>
+            <div class="flow-arrow"><div class="glowing-particle"></div></div>
+            <div class="flow-node">JWT Auth</div>
+            <div class="flow-arrow"><div class="glowing-particle" style="animation-delay: -1s;"></div></div>
+            <div class="flow-node">React App</div>
+            <div class="flow-arrow"><div class="glowing-particle" style="animation-delay: -1.5s;"></div></div>
+            <div class="flow-node">Axios Request</div>
+            <div class="flow-arrow"><div class="glowing-particle" style="animation-delay: -2s;"></div></div>
+            <div class="flow-node">Express API</div>
+            <div class="flow-arrow"><div class="glowing-particle" style="animation-delay: -2.5s;"></div></div>
+            <div class="flow-node">MySQL DB</div>
+          </div>
+          <div style="margin-top: 3rem; text-align: center;">
+            <span class="badge badge-cyan" style="font-size: 0.9rem; padding: 0.5rem 1.5rem;">Glowing API particles represent live asynchronous state synchronization.</span>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  SYSTEM WORKFLOW</span>
+          <span>SLIDE 06 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 7: Overall Architecture -->
+      <div class="slide" id="slide-7" data-notes="This is the application architecture: a client layer, controlled REST API, business logic, ORM and normalized database—with focused supporting services.">
+        <div class="slide-header">
+          <div class="eyebrow">06 / Architecture</div>
+          <h2 class="slide-title">Overall System Architecture & Side Components</h2>
+          <div class="slide-subtitle">Clear separation of concerns for scalable academic processing.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-2col">
+            <div class="glass-card" style="display:flex; flex-direction:column; gap:0.8rem;">
+              <h3 style="color:var(--cyan); margin-bottom:0.5rem">CORE LAYERED ARCHITECTURE</h3>
+              <div class="flow-node" style="width:100%">Users (Student / Faculty / Admin)</div>
+              <div class="flow-node" style="width:100%">React Frontend (Dashboards & State)</div>
+              <div class="flow-node" style="width:100%">Express REST API (Controllers & Routes)</div>
+              <div class="flow-node" style="width:100%">Business Logic Layer & Rules</div>
+              <div class="flow-node" style="width:100%">Sequelize ORM & Models</div>
+              <div class="flow-node" style="width:100%">MySQL 8 Database</div>
+            </div>
+            <div class="glass-card" style="display:flex; flex-direction:column; gap:1.2rem; justify-content:center;">
+              <h3 style="color:var(--purple)">SIDE CAPABILITIES</h3>
+              <div class="glass-card" style="border-color:var(--cyan)">
+                <strong style="color:var(--cyan)">React Hook Form</strong> — High performance form validation & handling.
+              </div>
+              <div class="glass-card" style="border-color:var(--purple)">
+                <strong style="color:var(--purple)">PDFKit Engine</strong> — Dynamic student transcript & report generation.
+              </div>
+              <div class="glass-card" style="border-color:var(--green)">
+                <strong style="color:var(--green)">ExcelJS Export</strong> — Automated tabular data export for faculty & admin.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  SYSTEM ARCHITECTURE</span>
+          <span>SLIDE 07 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 8: Cloud Infrastructure Architecture -->
+      <div class="slide" id="slide-8" data-notes="Explain the deployment route: source control triggers CI, Docker packages services, Terraform declares infrastructure, and EC2 serves the stack behind Nginx.">
+        <div class="slide-header">
+          <div class="eyebrow">07 / Cloud Architecture</div>
+          <h2 class="slide-title">Cloud Infrastructure Architecture (AWS EC2 & Docker)</h2>
+          <div class="slide-subtitle">Infrastructure as Code (IaC) — repeatable from commit to cloud.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center; gap: 1.5rem;">
+          <div class="glass-card" style="border-color: var(--yellow); background: rgba(255, 211, 106, 0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+              <h3 style="color:var(--yellow)">AWS EC2 / PRODUCTION VPC</h3>
+              <span class="badge badge-yellow">Terraform Provisioned</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+              <div class="flow-node">Elastic IP</div>
+              <div class="flow-node">Security Groups</div>
+              <div class="flow-node">Docker Network</div>
+              <div class="flow-node">Docker Volumes</div>
+              <div class="flow-node">Env Vars</div>
+              <div class="flow-node">HTTPS SSL</div>
+              <div class="flow-node">Nginx Proxy</div>
+              <div class="flow-node">EC2 Instance</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:center;">
+            <span class="badge badge-cyan">Developer</span> → 
+            <span class="badge badge-purple">GitHub</span> → 
+            <span class="badge badge-blue">Docker Build</span> → 
+            <span class="badge badge-green">AWS EC2 Deployment</span>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  CLOUD INFRASTRUCTURE</span>
+          <span>SLIDE 08 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 9: DevOps Deployment Workflow -->
+      <div class="slide" id="slide-9" data-notes="Stress that security is a gate, not an afterthought: tests and Trivy scanning occur before infrastructure and production rollout.">
+        <div class="slide-header">
+          <div class="eyebrow">08 / DevOps Workflow</div>
+          <h2 class="slide-title">DevOps Deployment Workflow & CI/CD Pipeline</h2>
+          <div class="slide-subtitle">Continuous integration turns delivery into a governed, repeatable pipeline.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center;">
+          <div class="grid-4x2">
+            <div class="flow-node">1. Git Push</div>
+            <div class="flow-node">2. GitHub Repo</div>
+            <div class="flow-node">3. GitHub Actions</div>
+            <div class="flow-node">4. Automated Testing</div>
+            <div class="flow-node" style="border-color:var(--red)">5. Trivy Security Scan</div>
+            <div class="flow-node">6. Docker Build</div>
+            <div class="flow-node">7. Terraform Apply</div>
+            <div class="flow-node" style="border-color:var(--green)">8. Production Server</div>
+          </div>
+          <div style="margin-top: 2rem; display:flex; justify-content:center; gap:2rem;">
+            <span class="badge badge-purple">CI Integration</span>
+            <span class="badge badge-red">Security Gate</span>
+            <span class="badge badge-cyan">CD Continuous Deployment</span>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  DEVOPS PIPELINE</span>
+          <span>SLIDE 09 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 10: Database Model (ER Diagram) -->
+      <div class="slide" id="slide-10" data-notes="The ER model is centered on users and departments. Offerings connect courses to faculty, while enrollments, attendance, exams and results capture the student journey.">
+        <div class="slide-header">
+          <div class="eyebrow">09 / Database Model</div>
+          <h2 class="slide-title">Normalized Academic Data Model (ER Diagram)</h2>
+          <div class="slide-subtitle">Core entities designed for integrity, traceability, and high query performance.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center;">
+          <div class="er-diagram">
+            <div class="er-card">
+              <div class="er-title">Users</div>
+              <div class="er-attr">id, email, role, hash</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Students / Faculty</div>
+              <div class="er-attr">user_id, dept_id, name</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Departments</div>
+              <div class="er-attr">id, code, name</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Courses</div>
+              <div class="er-attr">id, code, credits</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Offerings</div>
+              <div class="er-attr">course_id, faculty_id</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Enrollments</div>
+              <div class="er-attr">student_id, offering_id</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Attendance</div>
+              <div class="er-attr">enrollment_id, status</div>
+            </div>
+            <div class="er-card">
+              <div class="er-title">Results / Exams</div>
+              <div class="er-attr">student_id, grade, gpa</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  DATABASE ER MODEL</span>
+          <span>SLIDE 10 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 11: Agile Development Lifecycle -->
+      <div class="slide" id="slide-11" data-notes="Show how the roadmap becomes delivery: backlog to planning, development, testing, review, deployment and improvement, repeating every sprint.">
+        <div class="slide-header">
+          <div class="eyebrow">10 / Agile Lifecycle</div>
+          <h2 class="slide-title">Agile Development Lifecycle & Sprint Cadence</h2>
+          <div class="slide-subtitle">Continuous sprint rhythm translating roadmap priorities into working increments.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center; gap: 1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+            <div class="flow-node">1. Backlog</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node">2. Planning</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node">3. Sprint Dev</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node">4. Testing</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node">5. Review</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node">6. Deploy</div>
+          </div>
+          <div class="glass-card" style="display:flex; justify-content:space-around; text-align:center;">
+            <div><strong style="color:var(--cyan)">Sprint 1:</strong> Core API & Auth</div>
+            <div><strong style="color:var(--purple)">Sprint 2:</strong> Student & Faculty</div>
+            <div><strong style="color:var(--blue)">Sprint 3:</strong> Attendance & Reports</div>
+            <div><strong style="color:var(--green)">Sprint 4:</strong> Cloud & CI/CD</div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  AGILE LIFECYCLE</span>
+          <span>SLIDE 11 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 12: Team Responsibilities -->
+      <div class="slide" id="slide-12" data-notes="Introduce the team as a complete product team. Highlight Arab Das as owner of cloud infrastructure and containerization.">
+        <div class="slide-header">
+          <div class="eyebrow">11 / Team Responsibilities</div>
+          <h2 class="slide-title">Five Specialists, One Shared Engineering Mission</h2>
+          <div class="slide-subtitle">Cross-functional team owning the complete application lifecycle.</div>
+        </div>
+        <div class="slide-body">
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; width:100%;">
+            <div class="glass-card">
+              <h3 style="font-size:1.1rem;">Dhruv Mohapatro</h3>
+              <div class="badge badge-cyan" style="margin: 0.4rem 0;">Frontend Lead</div>
+              <p style="font-size:0.8rem; color:var(--muted)">React 19, Tailwind, Framer Motion, Dashboards, UI/UX.</p>
+            </div>
+            <div class="glass-card">
+              <h3 style="font-size:1.1rem;">Jay Krishna Rout</h3>
+              <div class="badge badge-purple" style="margin: 0.4rem 0;">Backend Lead</div>
+              <p style="font-size:0.8rem; color:var(--muted)">Express, REST APIs, JWT, Swagger, Business Logic.</p>
+            </div>
+            <div class="glass-card">
+              <h3 style="font-size:1.1rem;">Biswajit Barik</h3>
+              <div class="badge badge-green" style="margin: 0.4rem 0;">Database Lead</div>
+              <p style="font-size:0.8rem; color:var(--muted)">MySQL 8, Sequelize ORM, ER Design, Query Optimization.</p>
+            </div>
+            <div class="glass-card highlight" style="grid-column: span 2;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-size:1.2rem; color:var(--yellow)">Arab Das</h3>
+                <span class="badge badge-yellow">★ Cloud Infrastructure Lead</span>
+              </div>
+              <div style="font-size:0.85rem; margin-top:0.4rem; color:var(--white)">
+                Docker • Docker Compose • Terraform IaC • AWS EC2 • Render Deployment • Cloud Architecture • Container Management
+              </div>
+            </div>
+            <div class="glass-card">
+              <h3 style="font-size:1.1rem;">Surya Kanta Lenka</h3>
+              <div class="badge badge-purple" style="margin: 0.4rem 0;">DevOps & Security</div>
+              <p style="font-size:0.8rem; color:var(--muted)">GitHub Actions CI/CD, Nginx, SSL, Helmet, Trivy, Rate Limiting.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  TEAM RESPONSIBILITIES</span>
+          <span>SLIDE 12 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 13: Security Architecture -->
+      <div class="slide" id="slide-13" data-notes="Explain defense in depth: identity, access, safe headers, encrypted transport, CORS, rate controls, auditability and vulnerability scanning.">
+        <div class="slide-header">
+          <div class="eyebrow">12 / Security Architecture</div>
+          <h2 class="slide-title">Multi-Layered Security & Defense-in-Depth</h2>
+          <div class="slide-subtitle">Security controls embedded at identity, traffic, application, and cloud boundaries.</div>
+        </div>
+        <div class="slide-body" style="flex-direction: column; justify-content: center; align-items: center;">
+          <div style="position: relative; width: 400px; height: 260px; display:flex; align-items:center; justify-content:center;">
+            <div class="glass-card" style="border-color: var(--cyan); text-align:center; padding: 1.5rem; width: 180px; z-index: 5;">
+              <h3 style="color:var(--cyan)">PROTECTED PLATFORM</h3>
+            </div>
+            <div style="position:absolute; top:10px; left:10px;" class="badge badge-purple">JWT Auth</div>
+            <div style="position:absolute; top:10px; right:10px;" class="badge badge-blue">RBAC Access</div>
+            <div style="position:absolute; bottom:10px; left:10px;" class="badge badge-green">Helmet Headers</div>
+            <div style="position:absolute; bottom:10px; right:10px;" class="badge badge-yellow">Trivy Scanning</div>
+            <div style="position:absolute; top:50%; left:-30px; transform:translateY(-50%);" class="badge badge-cyan">HTTPS SSL</div>
+            <div style="position:absolute; top:50%; right:-30px; transform:translateY(-50%);" class="badge badge-red">Rate Limiting</div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  SECURITY ARCHITECTURE</span>
+          <span>SLIDE 13 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 14: Future Scope -->
+      <div class="slide" id="slide-14" data-notes="Position these as credible next steps, enabled by the present architecture: AI assistance, smart attendance, mobile, predictive insights and elastic cloud capacity.">
+        <div class="slide-header">
+          <div class="eyebrow">13 / Future Scope</div>
+          <h2 class="slide-title">Future Expansion Horizons for Campus Intelligence</h2>
+          <div class="slide-subtitle">Next-generation features enabled by ORION MIS's extensible architecture.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-4x2">
+            <div class="glass-card">
+              <span class="badge badge-cyan">AI</span>
+              <h4 style="margin-top:0.5rem">AI Chatbot</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Conversational campus helpdesk.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-purple">Biometrics</span>
+              <h4 style="margin-top:0.5rem">Face Recognition</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Automated biometric attendance.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-blue">Mobile</span>
+              <h4 style="margin-top:0.5rem">Mobile App</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Native iOS and Android apps.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-green">ML</span>
+              <h4 style="margin-top:0.5rem">Predictive Analytics</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Early student performance alerts.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-yellow">Cloud</span>
+              <h4 style="margin-top:0.5rem">Auto Scaling</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Elastic AWS ECS container scaling.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-purple">LMS</span>
+              <h4 style="margin-top:0.5rem">LMS Integration</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Canvas/Moodle integration.</p>
+            </div>
+            <div class="glass-card">
+              <span class="badge badge-cyan">Push</span>
+              <h4 style="margin-top:0.5rem">Smart Notifications</h4>
+              <p style="font-size:0.75rem; color:var(--muted)">Real-time push alerts.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  FUTURE SCOPE</span>
+          <span>SLIDE 14 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 15: Expected Benefits & Impact -->
+      <div class="slide" id="slide-15" data-notes="The expected impact is operational: faster administration and reports, less manual effort, protected access, scalable delivery and better decisions through real-time analytics.">
+        <div class="slide-header">
+          <div class="eyebrow">14 / Expected Benefits</div>
+          <h2 class="slide-title">Expected KPI Impact & Operational Benefits</h2>
+          <div class="slide-subtitle">Measurable performance transformation across academic administration.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-4x2">
+            <div class="glass-card"><h3 style="color:var(--cyan)">⚡ FASTER</h3><p style="font-size:0.8rem; color:var(--muted)">Administration</p></div>
+            <div class="glass-card"><h3 style="color:var(--purple)">📉 REDUCED</h3><p style="font-size:0.8rem; color:var(--muted)">Manual Work</p></div>
+            <div class="glass-card"><h3 style="color:var(--green)">🔒 SECURE</h3><p style="font-size:0.8rem; color:var(--muted)">Role-Based Access</p></div>
+            <div class="glass-card"><h3 style="color:var(--blue)">☁ ELASTIC</h3><p style="font-size:0.8rem; color:var(--muted)">Cloud Scalability</p></div>
+            <div class="glass-card"><h3 style="color:var(--yellow)">📊 REAL-TIME</h3><p style="font-size:0.8rem; color:var(--muted)">Analytics</p></div>
+            <div class="glass-card"><h3 style="color:var(--pink)">🎓 BETTER</h3><p style="font-size:0.8rem; color:var(--muted)">Student Experience</p></div>
+            <div class="glass-card"><h3 style="color:var(--cyan)">📄 AUTOMATED</h3><p style="font-size:0.8rem; color:var(--muted)">Reporting</p></div>
+            <div class="glass-card"><h3 style="color:var(--green)">💡 SMARTER</h3><p style="font-size:0.8rem; color:var(--muted)">Decision Making</p></div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  EXPECTED BENEFITS</span>
+          <span>SLIDE 15 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 16: Live Demo -->
+      <div class="slide" id="slide-16" data-notes="For the demo, use these exact stops: login, student dashboard, faculty dashboard, admin dashboard, attendance, results and analytics.">
+        <div class="slide-header">
+          <div class="eyebrow">15 / Live Demo</div>
+          <h2 class="slide-title">Interactive Module Mockups & Live Demonstration</h2>
+          <div class="slide-subtitle">Experience ORION MIS seamlessly across all roles.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-4x2">
+            <div class="glass-card" style="text-align:center;"><strong>Login Screen</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Student Dashboard</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Faculty Dashboard</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Admin Dashboard</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Attendance Module</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Results Module</strong></div>
+            <div class="glass-card" style="text-align:center;"><strong>Analytics Module</strong></div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  LIVE DEMO MOCKUPS</span>
+          <span>SLIDE 16 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 17: GitHub Repository -->
+      <div class="slide" id="slide-17" data-notes="Show the project layout, key technologies and contribution workflow. Replace the QR placeholder with the final GitHub repository link before presentation.">
+        <div class="slide-header">
+          <div class="eyebrow">16 / GitHub Repository</div>
+          <h2 class="slide-title">Repository Structure & Development Workflow</h2>
+          <div class="slide-subtitle">Clean folder layout built for continuous teamwork.</div>
+        </div>
+        <div class="slide-body">
+          <div class="grid-2col">
+            <div class="glass-card" style="font-family:'Fira Code', monospace; font-size:0.8rem; line-height:1.6;">
+              <div style="color:var(--cyan)">/ frontend (React + Vite)</div>
+              <div style="color:var(--muted)">  ├─ src/ components, pages, services</div>
+              <div style="color:var(--purple); margin-top:0.4rem;">/ backend (Express + Node)</div>
+              <div style="color:var(--muted)">  ├─ controllers, models, routes</div>
+              <div style="color:var(--green); margin-top:0.4rem;">/ nginx & terraform & .github</div>
+            </div>
+            <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+              <div style="width:120px; height:120px; background:var(--white); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--bg); font-weight:800; font-size:1.4rem;">
+                QR CODE
+              </div>
+              <span style="font-size:0.8rem; color:var(--muted)">Scan to view GitHub Repository</span>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  GITHUB REPOSITORY</span>
+          <span>SLIDE 17 / 18</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 18: Thank You -->
+      <div class="slide" id="slide-18" data-notes="Thank the audience, invite questions and transition into the demo or Q&A.">
+        <div class="slide-body" style="flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+          <h1 style="font-family:'Poppins', sans-serif; font-size:4rem; font-weight:900; background:linear-gradient(135deg, #FFF 0%, var(--cyan) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">THANK YOU</h1>
+          <h3 style="font-size:1.8rem; color:var(--cyan); margin-top:0.5rem;">Team Orion MIS</h3>
+          <p style="font-size:1.2rem; color:var(--muted); margin-top:1.5rem;">Questions & Feedback?</p>
+          <div style="margin-top:2.5rem;" class="badge badge-purple">Cloud-Native University Operations • Built to Evolve</div>
+        </div>
+        <div class="slide-footer">
+          <span>ORION MIS  •  FINAL SLIDE</span>
+          <span>SLIDE 18 / 18</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Speaker Notes Drawer -->
+  <div class="notes-drawer" id="notes-drawer">
+    <div class="notes-header">
+      <span>Speaker Notes</span>
+      <span style="cursor:pointer" onclick="toggleNotes()">✕</span>
+    </div>
+    <div class="notes-body" id="notes-content">
+      Open with the ORION MIS vision: one cloud-native platform that connects university operations end-to-end.
+    </div>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <button class="btn-ctrl" onclick="prevSlide()">◀ Prev</button>
+    <div class="slide-indicator"><span id="curr-slide">01</span> / 18</div>
+    <button class="btn-ctrl" onclick="nextSlide()">Next ▶</button>
+    <button class="btn-ctrl" onclick="toggleNotes()">📝 Notes</button>
+    <button class="btn-ctrl" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    <a href="../ORION_MIS_Final_Year_Project_Presentation.pptx" download style="text-decoration:none;">
+      <button class="btn-download">⬇ PPTX File</button>
+    </a>
+  </div>
+
+  <script>
+    let currentSlideIndex = 1;
+    const totalSlides = 18;
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((slide, index) => {
+        const slideNum = index + 1;
+        slide.classList.remove('active', 'prev');
+        if (slideNum === currentSlideIndex) {
+          slide.classList.add('active');
+          const notes = slide.getAttribute('data-notes') || 'No speaker notes for this slide.';
+          document.getElementById('notes-content').innerText = notes;
+        } else if (slideNum < currentSlideIndex) {
+          slide.classList.add('prev');
+        }
+      });
+      document.getElementById('curr-slide').innerText = String(currentSlideIndex).padStart(2, '0');
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < totalSlides) {
+        currentSlideIndex++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIndex > 1) {
+        currentSlideIndex--;
+        updateSlide();
+      }
+    }
+
+    function toggleNotes() {
+      document.getElementById('notes-drawer').classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'n' || e.key === 'N') toggleNotes();
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    });
+
+    // Background Canvas Particles
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles = [];
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        this.radius = Math.random() * 1.5 + 0.5;
+        this.color = Math.random() > 0.5 ? '#5DE4FF' : '#8D5BFF';
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0) this.x = width;
+        if (this.x > width) this.x = 0;
+        if (this.y < 0) this.y = height;
+        if (this.y > height) this.y = 0;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 70; i++) particles.push(new Particle());
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

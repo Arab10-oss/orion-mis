@@ -76,7 +76,7 @@ const seedDatabase = async (force = false) => {
       { name: 'Arab Das', email: 'arabdas98@gmail.com', desig: 'Chief System Administrator' },
       { name: 'Dhruv Mohapatro', email: 'dhruvmohapatro3@gmail.com', desig: 'Senior MIS Administrator' },
       { name: 'Biswajit Barik', email: 'biswajitv178@gmail.com', desig: 'Database Administrator' },
-      { name: 'Jai Krishna', email: 'gourimanirout@gmail.com', desig: 'Infrastructure Administrator' },
+      { name: 'Jay Krishna Rout', email: 'gourimanirout@gmail.com', desig: 'Infrastructure Administrator' },
       { name: 'Surya Kanta Lenka', email: 'suryakantalenka017@gmail.com', desig: 'Security Administrator' },
     ];
 
