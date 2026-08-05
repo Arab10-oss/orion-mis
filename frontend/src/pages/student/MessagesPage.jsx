@@ -4,8 +4,10 @@ import { toast } from 'react-toastify';
 import { PaperAirplaneIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import api from '../../services/api';
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../../context/AuthContext';
 
 const StudentMessagesPage = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [facultyList, setFacultyList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,14 +26,18 @@ const StudentMessagesPage = () => {
 
   useEffect(() => {
     fetchMessages();
-    api.get('/faculty?limit=100').then(r => setFacultyList(r.data.data)).catch(() => {});
+    api.get('/faculty?limit=100')
+      .then(r => setFacultyList(r.data.data || []))
+      .catch(() => {
+        toast.error('Failed to load faculty list');
+      });
   }, [fetchMessages]);
 
   const onSubmit = async (formData) => {
     try {
       await api.post('/messages', formData);
       toast.success('Message sent to faculty member');
-      reset({ subject: '', content: '' });
+      reset({ receiver_id: '', subject: '', content: '' });
       fetchMessages();
     } catch (e) {
       toast.error(e.response?.data?.message || 'Failed to send message');
@@ -56,10 +62,11 @@ const StudentMessagesPage = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="form-label">Select Faculty</label>
-              <select className="form-input" {...register('receiver_id', { required: 'Required' })}>
+              <select className="form-input" {...register('receiver_id', { required: 'Please select a faculty member' })}>
+                <option value="">-- Select Faculty Member --</option>
                 {facultyList.map(f => (
                   <option key={f.faculty_id} value={f.user_id}>
-                    {f.user?.username} ({f.department?.department_name})
+                    {f.user?.username || 'Faculty'} {f.designation ? `(${f.designation})` : ''} {f.department?.department_name ? `- ${f.department.department_name}` : ''}
                   </option>
                 ))}
               </select>
@@ -89,16 +96,32 @@ const StudentMessagesPage = () => {
             <p className="text-xs text-slate-400 py-6 text-center">No messages sent or received yet.</p>
           ) : (
             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
-              {messages.map((m) => (
-                <div key={m.message_id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-campus-navy-600">To: {m.receiver?.username || 'Faculty'}</span>
-                    <span className="text-[10px] text-slate-400">{new Date(m.createdAt).toLocaleString()}</span>
+              {messages.map((m) => {
+                const isSender = m.sender_id === user?.id;
+                const dateStr = new Date(m.createdAt || m.created_at).toLocaleString();
+                return (
+                  <div key={m.message_id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        {isSender ? (
+                          <>
+                            <span className="font-bold text-campus-navy-600">To: {m.receiver?.username || 'Faculty'}</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-blue-100 text-blue-700 font-semibold">Sent</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-bold text-campus-gold-600">From: {m.sender?.username || 'Faculty'}</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-700 font-semibold">Received</span>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-slate-400">{dateStr}</span>
+                    </div>
+                    <h4 className="font-bold text-campus-navy-900 text-sm">{m.subject}</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed bg-slate-950/40 p-2.5 rounded-lg">{m.content}</p>
                   </div>
-                  <h4 className="font-bold text-campus-navy-900 text-sm">{m.subject}</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed bg-slate-950/40 p-2.5 rounded-lg">{m.content}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

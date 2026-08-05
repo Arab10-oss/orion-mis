@@ -47,10 +47,22 @@ jobs:
               require('./src/routes/auth.routes');
               require('./src/routes/student.routes');
               require('./src/routes/faculty.routes');
+              require('./src/routes/department.routes');
+              require('./src/routes/course.routes');
+              require('./src/routes/courseOffering.routes');
+              require('./src/routes/enrollment.routes');
               require('./src/routes/attendance.routes');
               require('./src/routes/exam.routes');
+              require('./src/routes/result.routes');
+              require('./src/routes/user.routes');
+              require('./src/routes/report.routes');
               require('./src/routes/fee.routes');
-              console.log('✅ All route modules loaded successfully');
+              require('./src/routes/hostel.routes');
+              require('./src/routes/library.routes');
+              require('./src/routes/inventory.routes');
+              require('./src/routes/message.routes');
+              require('./src/routes/event.routes');
+              console.log('✅ All 18 route modules loaded successfully');
             } catch(e) {
               console.error('❌ Route load failed:', e.message);
               process.exit(1);

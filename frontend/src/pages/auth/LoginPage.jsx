@@ -551,18 +551,20 @@ const LoginPage = () => {
             {/* Demo accounts */}
             <div className="mt-6 pt-5 border-t border-slate-100">
               <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-slate-400 mb-2.5">
-                OIT Demo Accounts
+                OIT Demo Accounts (All Admins have Full System Access)
               </p>
-              <div className="space-y-1.5 bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+              <div className="space-y-1.5 bg-slate-50 rounded-2xl p-3.5 border border-slate-100 max-h-48 overflow-y-auto">
                 {[
-                  { role: 'Admin',   email: 'arabdas98@gmail.com',     pass: 'Admin@123',   bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
-                  { role: 'Faculty', email: 'anita.sharmaFAC@oit.edu', pass: 'Faculty@123', bg: '#f0fdf4', fg: '#15803d', bd: '#bbf7d0' },
-                  { role: 'Student', email: 'zahir.arjun100@oit.edu',  pass: 'Student@123', bg: '#eff6ff', fg: '#1d4ed8', bd: '#bfdbfe' },
-                ].map(({ role, email, pass, bg, fg, bd }) => (
-                  <div key={role} className="flex items-center gap-2 text-[11px]">
-                    <span className="w-[52px] flex-shrink-0 text-center font-bold py-0.5 rounded-full"
+                  { role: 'Admin', email: 'arabdas98@gmail.com', pass: 'Admin@123', label: 'Chief Admin', bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
+                  { role: 'Admin', email: 'dhruvmohapatro3@gmail.com', pass: 'Admin@123', label: 'Senior Admin', bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
+                  { role: 'Admin', email: 'biswajitv178@gmail.com', pass: 'Admin@123', label: 'DB Admin', bg: '#fffbeb', fg: '#b45309', bd: '#fde68a' },
+                  { role: 'Faculty', email: 'anita.sharmaFAC@oit.edu', pass: 'Faculty@123', label: 'Faculty', bg: '#f0fdf4', fg: '#15803d', bd: '#bbf7d0' },
+                  { role: 'Student', email: 'zahir.arjun100@oit.edu', pass: 'Student@123', label: 'Student', bg: '#eff6ff', fg: '#1d4ed8', bd: '#bfdbfe' },
+                ].map(({ email, pass, label, bg, fg, bd }) => (
+                  <div key={email} className="flex items-center gap-2 text-[11px]">
+                    <span className="w-[72px] flex-shrink-0 text-center font-bold py-0.5 rounded-full text-[9px]"
                       style={{ background: bg, color: fg, border: `1px solid ${bd}` }}>
-                      {role}
+                      {label}
                     </span>
                     <span className="text-slate-500 truncate flex-1">{email}</span>
                     <span className="text-slate-400 font-mono flex-shrink-0">{pass}</span>

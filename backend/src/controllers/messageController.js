@@ -12,7 +12,7 @@ const getMyMessages = async (req, res, next) => {
         { association: 'sender', attributes: ['id', 'username', 'email', 'role'] },
         { association: 'receiver', attributes: ['id', 'username', 'email', 'role'] }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
     sendSuccess(res, messages);
   } catch (error) { next(error); }
@@ -27,7 +27,13 @@ const sendMessage = async (req, res, next) => {
       subject,
       content
     });
-    sendCreated(res, msg, 'Message sent successfully');
+    const fullMsg = await Message.findByPk(msg.message_id, {
+      include: [
+        { association: 'sender', attributes: ['id', 'username', 'email', 'role'] },
+        { association: 'receiver', attributes: ['id', 'username', 'email', 'role'] }
+      ]
+    });
+    sendCreated(res, fullMsg, 'Message sent successfully');
   } catch (error) { next(error); }
 };
 
